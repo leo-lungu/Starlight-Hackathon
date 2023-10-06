@@ -2,55 +2,49 @@ import cv2
 from deepface import DeepFace
 import pygame
 
-# Initialize pygame mixer
-pygame.mixer.init() 
+# Initialize pygame mixer 
+pygame.mixer.init()
 
 # Load audio files
 happy_sound = pygame.mixer.Sound('/music/happy.mp3')
 sad_sound = pygame.mixer.Sound('/music/sad.mp3')
 
-# Initialize the webcam
-cap = cv2.VideoCapture(0)  # 0 for the default webcam
+# Initialize webcam
+cap = cv2.VideoCapture(0)  
 
 while True:
-    # Capture frame-by-frame
+    # Capture frame
     ret, frame = cap.read()
-    
-    # Perform emotion analysis
+
+    # Detect emotion
     try:
         result = DeepFace.analyze(frame, actions=['emotion'], enforce_detection=False)
-        
-        # If result is a non-empty list, proceed
+            
         if isinstance(result, list) and len(result) > 0:
             emotion = result[0].get('dominant_emotion', "N/A")
         else:
             emotion = "N/A"
 
     except Exception as e:
-        print(f"An exception occurred: {e}")
+        print(f"Exception: {e}")
         emotion = "Error"
-    
-    # Display the emotion on the frame
-    cv2.putText(frame, emotion, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
-    
-    # Display the frame with the emotion text
-    cv2.imshow('Emotion Detector', frame)
-    
-    # Press 'q' to quit the application
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
 
-# Release the webcam and destroy all OpenCV windows
-cap.release()
-
-while True:
-
-    # Emotion detection
-    
+    # Play audio based on emotion
     if emotion == "happy":
         happy_sound.play()
     elif emotion == "sad":
         sad_sound.play()
-        
-    # Rest of loop...
 
+    # Display emotion text on frame 
+    cv2.putText(frame, emotion, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+        
+    # Display frame
+    cv2.imshow('Emotion Detector', frame)
+
+    # Break loop with 'q'
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+        
+# Release resources
+cap.release()
+cv2.destroyAllWindows()
