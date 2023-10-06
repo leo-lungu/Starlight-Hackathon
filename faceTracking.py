@@ -1,5 +1,13 @@
 import cv2
 from deepface import DeepFace
+import pygame
+
+# Initialize pygame mixer
+pygame.mixer.init() 
+
+# Load audio files
+happy_sound = pygame.mixer.Sound('/music/happy.mp3')
+sad_sound = pygame.mixer.Sound('/music/sad.mp3')
 
 # Initialize the webcam
 cap = cv2.VideoCapture(0)  # 0 for the default webcam
@@ -34,3 +42,15 @@ while True:
 
 # Release the webcam and destroy all OpenCV windows
 cap.release()
+
+while True:
+
+    # Emotion detection
+    
+    if emotion == "happy":
+        happy_sound.play()
+    elif emotion == "sad":
+        sad_sound.play()
+        
+    # Rest of loop...
+
