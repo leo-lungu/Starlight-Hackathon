@@ -29,6 +29,8 @@ while True:
         # If result is a non-empty list, proceed
         if isinstance(result, list) and len(result) > 0:
             emotion = result[0].get('dominant_emotion', "N/A")
+    
+            
 
             if emotion == "happy":
                 if not is_happy_playing:
@@ -47,6 +49,11 @@ while True:
                 is_happy_playing = False
                 is_sad_playing = False
                 pygame.mixer.stop()
+
+            # wait for the sound to finish playing
+            while pygame.mixer.get_busy():
+                continue
+
 
         else:
             emotion = "N/A"
