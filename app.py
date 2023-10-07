@@ -105,3 +105,7 @@ while True:
         detected.write(f"Detected emotion: `{st.session_state.emotion}`")
         current.write(f"Current emotion: `{str(current_emotion)}`")
         playing.write(f"Playing: `{str(st.session_state.playing)}`")
+
+# Determine current mood
+# Query YouTube API for matching songs
+# Return playlist and auto-play
