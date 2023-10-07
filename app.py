@@ -1,7 +1,6 @@
 import cv2
 import streamlit as st
 import queue
-import streamlit.components.v1 as components
 
 happy = open("./music/happy.mp3", "rb").read()
 sad = open("./music/sad.mp3", "rb").read()

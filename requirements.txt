@@ -1,0 +1,5 @@
+deepface==0.0.79
+opencv_python==4.8.1.78
+pygame==2.5.0
+streamlit==1.27.0
+~treamlit==1.23.1
