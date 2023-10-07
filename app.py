@@ -1,8 +1,6 @@
 import cv2
 import streamlit as st
 import queue
-import base64
-import time
 import streamlit.components.v1 as components
 
 happy = open("./music/happy.mp3", "rb").read()
@@ -23,7 +21,7 @@ def get_emotion(frame):
         emotion = result[0].get("dominant_emotion", None)
         if emotion:
             st.session_state.emotions.put(emotion)
-            if st.session_state.emotions.qsize() > 10:
+            if st.session_state.emotions.qsize() > 50:
                 st.session_state.emotions.get()
         return emotion
     return None
@@ -32,32 +30,9 @@ def get_current_emotion():
     emotions = list(st.session_state.emotions.queue)
     if emotions:
         emotion = max(set(emotions), key=emotions.count)
-        if emotions.count(emotion) > 5:
+        if emotions.count(emotion) > 25:
             return emotion
     return None
-
-def play_audio(file):
-    b64 = base64.b64encode(file).decode()
-    player_id = f"audio_{time.time()}"
-    st.markdown(
-        f"""
-            <audio id="{player_id}" controls autoplay="true">
-            <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
-            </audio>
-        """,
-        unsafe_allow_html=True,
-    )
-    return player_id
-
-# def stop_audio():
-#     components.html(
-#         f"""
-#             <script>
-#                 element = document.getElementById("{st.session_state.audio_player}")
-#                 element.pause()
-#             </script>
-#         """
-#     )
 
 st.header("Face Tracking")
 
@@ -65,6 +40,7 @@ col1, col2, col3 = st.columns(3)
 detected = col1.empty()
 current = col2.empty()
 playing = col3.empty()
+audio = st.empty()
 
 FRAME_WINDOW = st.image([])
 with st.spinner("Accessing Camera..."):
@@ -97,9 +73,9 @@ while True:
         if current_emotion == "happy":
             if st.session_state.playing != current_emotion:
                 st.session_state.playing = current_emotion
-                st.session_state.audio_player = play_audio(happy)
+                audio.audio(happy, format="audio/mp3", start_time=0)
 
         elif current_emotion == "sad":
             if st.session_state.playing != current_emotion:
                 st.session_state.playing = current_emotion
-                st.session_state.audio_player = play_audio(sad)
+                audio.audio(sad, format="audio/mp3", start_time=0)
