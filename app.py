@@ -14,6 +14,7 @@ if "emotion" not in st.session_state:
     st.session_state.emotions = queue.Queue()
     st.session_state.playing = None
     st.session_state.audio_player = None
+    st.session_state.scanning = True  # Add a scanning flag
 
 # Import DeepFace for emotion recognition
 with st.spinner("Importing DeepFace..."):
@@ -29,7 +30,7 @@ def get_emotion(frame):
             # Maintain the queue length to 50
             if st.session_state.emotions.qsize() > 50:
                 st.session_state.emotions.get()
-        return emotion
+            return emotion
     return None
 
 # Function to get the current dominant emotion
@@ -61,7 +62,7 @@ with st.spinner("Starting Camera..."):
             break
 
 # Main loop for the camera feed
-while True:
+while st.session_state.scanning:  # Continue scanning while the flag is True
     ret, frame = camera.read()
     if ret:
         # Convert the frame color to RGB
@@ -89,8 +90,16 @@ while True:
                 st.session_state.playing = current_emotion
                 encoded_happy = base64.b64encode(happy).decode('utf-8')
                 audio.markdown('<audio  style="width: 100%;" src="data:audio/mp3;base64,{}" autoplay controls></audio>'.format(encoded_happy), unsafe_allow_html=True)
+                st.session_state.scanning = False  # Stop scanning when happy emotion is detected
         elif current_emotion == "sad":
             if st.session_state.playing != current_emotion:
                 st.session_state.playing = current_emotion
                 encoded_sad = base64.b64encode(sad).decode('utf-8')
                 audio.markdown('<audio style="width: 100%;" src="data:audio/mp3;base64,{}" autoplay controls></audio>'.format(encoded_sad), unsafe_allow_html=True)
+                st.session_state.scanning = False  # Stop scanning when sad emotion is detected
+
+# Release the camera when scanning is finished
+camera.release()
+# "Scan Again" button to restart scanning
+if st.button("Scan Again"):
+    st.session_state.scanning = True  # Set the scanning flag to True to start scanning again
