@@ -11,8 +11,8 @@ from youtubeAPIHandler import youtube_search
 
 
 # Load happy and sad mp3 files
-happy = open("music/happy.mp3", "rb").read()
-sad = open("music/sad.mp3", "rb").read()
+happy = open("music/happy/happy.mp3", "rb").read()
+sad = open("music/sad/sad.mp3", "rb").read()
 # Function to load a random mp3 file from a given folder
 def load_random_song(folder):
     files = [f for f in os.listdir(folder) if f.endswith('.mp3')]
