@@ -2,6 +2,7 @@
 import cv2
 import streamlit as st
 import queue
+import base64
 
 # Load happy and sad mp3 files
 happy = open("music/happy.mp3", "rb").read()
@@ -47,7 +48,7 @@ col1, col2, col3 = st.columns(3)
 detected = col1.empty()
 current = col2.empty()
 playing = col3.empty()
-audio = st.empty()
+audio = st.markdown("", unsafe_allow_html=True)
 FRAME_WINDOW = st.image([])
 
 # Start the camera
@@ -86,8 +87,10 @@ while True:
         if current_emotion == "happy":
             if st.session_state.playing != current_emotion:
                 st.session_state.playing = current_emotion
-                audio.audio(happy, format="audio/mp3", start_time=0)
+                encoded_happy = base64.b64encode(happy).decode('utf-8')
+                audio.markdown('<audio  style="width: 100%;" src="data:audio/mp3;base64,{}" autoplay controls></audio>'.format(encoded_happy), unsafe_allow_html=True)
         elif current_emotion == "sad":
             if st.session_state.playing != current_emotion:
                 st.session_state.playing = current_emotion
-                audio.audio(sad, format="audio/mp3", start_time=0)
+                encoded_sad = base64.b64encode(sad).decode('utf-8')
+                audio.markdown('<audio style="width: 100%;" src="data:audio/mp3;base64,{}" autoplay controls></audio>'.format(encoded_sad), unsafe_allow_html=True)
