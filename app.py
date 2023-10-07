@@ -6,6 +6,8 @@ import base64
 import os
 import random
 
+from youtubeAPIHandler import youtube_search
+
 # Function to load a random mp3 file from a given folder
 def load_random_song(folder):
     files = [f for f in os.listdir(folder) if f.endswith('.mp3')]
@@ -13,6 +15,12 @@ def load_random_song(folder):
         return None
     random_file = random.choice(files)
     return open(os.path.join(folder, random_file), "rb").read()
+
+# Query YouTube and generate a playlist
+def generate_playlist(emotion, age):
+    query = f"{emotion} songs for age {age}"
+    playlist = youtube_search(query, max_results=20)
+    return playlist
 
 # Initialize session state if not already done
 if "emotion" not in st.session_state:
@@ -106,6 +114,15 @@ while True:
         current.write(f"Current emotion: `{str(current_emotion)}`")
         playing.write(f"Playing: `{str(st.session_state.playing)}`")
 
+
+# Incorporate following code:
 # Determine current mood
-# Query YouTube API for matching songs
-# Return playlist and auto-play
+emotion = "happy"
+age = 21
+
+# Generate and display playlist
+playlist = generate_playlist(emotion, age)
+
+st.write("Generated Playlist:")
+for song in playlist:
+    st.write(song)
