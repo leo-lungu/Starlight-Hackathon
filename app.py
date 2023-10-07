@@ -2,8 +2,8 @@ import cv2
 import streamlit as st
 import queue
 
-happy = open("./music/happy.mp3", "rb").read()
-sad = open("./music/sad.mp3", "rb").read()
+happy = open("music/happy.mp3", "rb").read()
+sad = open("music/sad.mp3", "rb").read()
 
 if "emotion" not in st.session_state:
     st.session_state.emotion = None
