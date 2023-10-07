@@ -54,7 +54,7 @@ while True:
     ret, frame = camera.read()
     if ret:
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        FRAME_WINDOW.image(frame)
+        FRAME_WINDOW.image(frame, use_column_width=True)
 
         st.session_state.emotion = get_emotion(frame)
         current_emotion = get_current_emotion()
