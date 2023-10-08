@@ -6,13 +6,20 @@ import base64
 import os
 import random
 
+
 from youtubeAPIHandler import youtube_search
 
 
 
+
+
+
 # Load happy and sad mp3 files
+
 happy = open("music/happy/happy.mp3", "rb").read()
 sad = open("music/sad/sad.mp3", "rb").read()
+
+
 # Function to load a random mp3 file from a given folder
 def load_random_song(folder):
     files = [f for f in os.listdir(folder) if f.endswith('.mp3')]
@@ -27,6 +34,7 @@ def generate_playlist(emotion, age):
     playlist = youtube_search(query, max_results=20)
     return playlist
 
+
 # Initialize session state if not already done
 if "emotion" not in st.session_state:
     st.session_state.emotion = None
@@ -34,6 +42,7 @@ if "emotion" not in st.session_state:
     st.session_state.playing = None
     st.session_state.audio_player = None
     st.session_state.scanning = True  # Add a scanning flag
+    st.session_state.show_camera = False  # Add a flag to toggle camera visibility
 
 # Import DeepFace for emotion recognition
 with st.spinner("Importing DeepFace..."):
@@ -90,7 +99,7 @@ with st.spinner("Starting Camera..."):
         if ret is not None:
             break
 
-# Main loop for the camera feed
+#Main loop for the camera feed
 while st.session_state.scanning:  # Continue scanning while the flag is True
     ret, frame = camera.read()
     if ret:
@@ -147,6 +156,8 @@ if st.button("Scan Again"):
     st.session_state.scanning = True  # Set the scanning flag to True to start scanning again
 
 
+
+
 # Incorporate following code:
 # Determine current mood
 emotion = "happy"
@@ -158,3 +169,4 @@ playlist = generate_playlist(emotion, age)
 st.write("Generated Playlist:")
 for song in playlist:
     st.write(song)
+
