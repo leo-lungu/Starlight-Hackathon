@@ -68,7 +68,7 @@ def get_emotion(frame): # TODO: Add more emotion detection models
     if isinstance(result, list) and len(result) > 0: # If result is a non-empty list, proceed
         emotion = result[0].get("dominant_emotion", None) # Get the dominant emotion
         if emotion: # If emotion is not None, proceed 
-            st.session_state.emotions.put(emotion) # Add the emotion to the emotions queue
+            st.session_state.emotions.put(emotion) # Add the emotion to the emotions queue
             if st.session_state.emotions.qsize() > 50: # If the queue size is greater than 50, remove the oldest emotion
                 st.session_state.emotions.get()# Remove the oldest emotion from the queue
             return emotion
