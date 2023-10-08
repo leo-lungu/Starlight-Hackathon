@@ -221,7 +221,7 @@ with col4:
 with col5:
    if st.button("Neutral", use_container_width=True):
        current_emotion = "neutral"
-   st.image("image/netural.png")
+   st.image("image/neutral.png")
 
 with col6:
    if st.button("Fear", use_container_width=True):
