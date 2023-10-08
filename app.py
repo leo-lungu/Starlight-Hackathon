@@ -132,7 +132,12 @@ if st.button("Scan"):
 
 # Dropdown for age selection
 with col1:
-    age = st.selectbox("Select Age Group", ["3-5", "6-10", "10-15", "15-20"])
+    age = st.selectbox(
+        "Select Age Group",
+        ["3-5", "6-10", "10-15", "15-20"],
+        2,
+        disabled=st.session_state.scanning
+    )
 
 if st.session_state.scanning:
 
