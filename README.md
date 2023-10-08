@@ -33,9 +33,13 @@ pip install -r requirements.txt
 ```
 
 ## Set Up YouTube API Key
+
 **Create Environment File:** Create a .env file in the root directory of the project.
 
-**Add API Key to .env:** Open .env and add your YouTube API key like so:
+**Generate an API Key:** Follow these [instructions](https://developers.google.com/youtube/v3/getting-started) to create your own key
+
+**Add API Key to .env:** Open .env and add your API key
+
 ```
 YOUTUBE_API_KEY="YOUR_API_KEY"
 ```
