@@ -128,26 +128,7 @@ while st.session_state.scanning:  # Continue scanning while the flag is True
         current.write(f"Current emotion: `{str(current_emotion)}`")
         playing.write(f"Playing: `{str(st.session_state.playing)}`")
 
-        # Update current emotion if it's changed
-        if current_emotion != st.session_state.emotion:
-            if current_emotion == "happy":
-                st.session_state.emotion = current_emotion
-            elif current_emotion == "sad":
-                st.session_state.emotion = current_emotion
 
-        # Play audio based on the current emotion
-        if current_emotion == "happy":
-            if st.session_state.playing != current_emotion:
-                st.session_state.playing = current_emotion
-                encoded_happy = base64.b64encode(happy).decode('utf-8')
-                audio.markdown('<audio  style="width: 100%;" src="data:audio/mp3;base64,{}" autoplay controls></audio>'.format(encoded_happy), unsafe_allow_html=True)
-                st.session_state.scanning = False  # Stop scanning when happy emotion is detected
-        elif current_emotion == "sad":
-            if st.session_state.playing != current_emotion:
-                st.session_state.playing = current_emotion
-                encoded_sad = base64.b64encode(sad).decode('utf-8')
-                audio.markdown('<audio style="width: 100%;" src="data:audio/mp3;base64,{}" autoplay controls></audio>'.format(encoded_sad), unsafe_allow_html=True)
-                st.session_state.scanning = False  # Stop scanning when sad emotion is detected
 
 # Release the camera when scanning is finished
 camera.release()
