@@ -153,36 +153,52 @@ if st.button("Scan"):
 
 col1, col2 = st.columns([4,1])
 
-with col1:
-    st.empty()
+
+# with col1:
+#     st.empty()
+# with col2:
+#     if st.button("❓"):
+#         current_emotion = random.choice(["happy", "sad", "angry", "surprise", "neutral", "fear"])
+
+# # Dropdown for age selection
+# with col1:
+#     age = st.selectbox(
+#         "Select Age Group",
+#         ["3-5", "6-10", "10-15", "15-20"],
+#         2,
+#         disabled=st.session_state.scanning
+#     )
+
+
+# put scan button on left and ? button on right
 with col2:
-    if st.button("❓"):
-        current_emotion = random.choice(["happy", "sad", "angry", "surprise", "neutral", "fear"])
+    st.empty()
 
-# Dropdown for age selection
-with col1:
-    age = st.selectbox(
-        "Select Age Group",
-        ["3-5", "6-10", "10-15", "15-20"],
-        2,
-        disabled=st.session_state.scanning
-    )
-
+col1, col2, col3, col4, col5, col6 = st.columns(6)
 
 with col1:
-    
-    if st.button("😀"):
-        current_emotion = "happy"
-    if st.button("😢"):
-        current_emotion = "sad"
-    if st.button("😠"):
-        current_emotion = "angry"
-    if st.button("😲"):
-        current_emotion = "surprise"
-    if st.button("😐"):
-        current_emotion = "neutral"
-    if st.button("😨"):
-        current_emotion = "fear"
+   if st.button("😀"):
+       current_emotion = "happy"
+
+with col2:
+   if st.button("😢"):
+       current_emotion = "sad"
+       
+with col3:
+   if st.button("😠"):
+       current_emotion = "angry"
+
+with col4:
+   if st.button("😲"):
+       current_emotion = "surprise"  
+
+with col5:
+   if st.button("😐"):
+       current_emotion = "neutral"
+
+with col6:
+   if st.button("😨"):
+       current_emotion = "fear"
 
 
 
