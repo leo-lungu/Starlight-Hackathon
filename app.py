@@ -95,8 +95,8 @@ def get_current_emotion(): # TODO: Add more emotion detection models
 # UI Functions
 
 # Function to add an audio player to the UI
-def play(container, encoded_song):
-    container.markdown(f"""
+def play_audio(encoded_song):
+    st.markdown(f"""
         <audio style='width: 100%;' src='data:audio/mp3;base64,{encoded_song}'
             autoplay controls>
         </audio>""",
@@ -284,7 +284,7 @@ if current_emotion:
                 audio_data = open(audio_path, "rb").read()
                 encoded_song = base64.b64encode(audio_data).decode("utf-8")
                 st.session_state.current_song = YouTube(random_song_url).title
-                play(audio, encoded_song)
+                play_audio(encoded_song)
 
         except Exception as e:
             # st.write(f"An error occurred: {e}. Playing local files.")
@@ -294,6 +294,6 @@ if current_emotion:
             if song_data:
                 encoded_song = base64.b64encode(song_data).decode("utf-8")
                 st.session_state.current_song = current_emotion
-                play(audio, encoded_song)
+                play_audio(encoded_song)
 
         playing.write(f"Playing: `{str(st.session_state.current_song)}`")
