@@ -1,15 +1,22 @@
 import cv2
 from deepface import DeepFace
 import pygame
+import random
+import glob
 
 #Initialize mixer
 pygame.mixer.init()
 
 # Load audio files
-happy_sound = pygame.mixer.Sound('./music/happy.mp3')
-sad_sound = pygame.mixer.Sound('./music/sad.mp3')
-Angry_sound = "no sound"
-Disgust_sound = "no sound"
+#select a random file from ./music/happy/ directory
+
+
+#randomise the songs
+happy_sound = pygame.mixer.Sound(random.choice(glob.glob("./music/happy/*.mp3")))
+sad_sound = pygame.mixer.Sound(random.choice(glob.glob("./music/sad/*.mp3")))
+surprise_sound = pygame.mixer.Sound(random.choice(glob.glob("./music/surprise/*.mp3")))
+neutral_sound = pygame.mixer.Sound(random.choice(glob.glob("./music/neutral/*.mp3")))
+angry_sound = pygame.mixer.Sound(random.choice(glob.glob("./music/angry/*.mp3")))
 
 # Flags to track if sounds are already playing
 is_happy_playing = False
