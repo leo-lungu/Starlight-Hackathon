@@ -169,37 +169,43 @@ with col1:
 
 
 
-
-
-# put scan button on left and ? button on right
-with col2:
-    st.empty()
-
 col1, col2, col3, col4, col5, col6 = st.columns(6)
 
-# with col1:
-#    if st.image("image/happy.png"):
-#        current_emotion = "happy"
+with col1:
+   if st.button("Happy"):
+       current_emotion = "happy"
 
-# with col2:
-#    if st.image("image/sad.png"):
-#        current_emotion = "sad"
+   st.image("image/happy.png")
+
+with col2:
+   if st.button("Sad"):
+       current_emotion = "sad"
+
+   st.image("image/sad.png")
        
-# with col3:
-#    if st.image("image/angry.png"):
-#        current_emotion = "angry"
+with col3:
+   if st.button("Angry"):
+       current_emotion = "angry"
 
-# with col4:
-#    if st.image("image/surprised.png"):
-#        current_emotion = "surprise"  
+   st.image("image/angry.png")
 
-# with col5:
-#    if st.image("image/netural.png"):
-#        current_emotion = "neutral"
+with col4:
+   if st.button("Surprised"):
+       current_emotion = "surprise" 
 
-# with col6:
-#    if st.image("image/fear.png"):
-#        current_emotion = "fear"
+   st.image("image/surprised.png")
+
+with col5:
+   if st.button("Neutral"):
+       current_emotion = "neutral"
+
+   st.image("image/netural.png")
+
+with col6:
+   if st.button("Fear"):
+       current_emotion = "fear"
+
+   st.image("image/fear.png")
 
 
 # put scan button on left and ? button on right
