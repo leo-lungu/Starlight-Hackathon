@@ -1,5 +1,7 @@
 # StarLight: Music for Emotions - A CHAS Initiative
 
+![1696796663849](image/README/1696796663849.png)
+
 ## Overview
 
 StarLight is an interactive web application specially developed for Children's Hospices Across Scotland (CHAS) to enrich the lives of children and families by playing music that resonates with the user's current feelings. By combining intuitive user experience design and state-of-the-art sentiment analysis, StarLight aims to provide a personalized and therapeutic musical journey.

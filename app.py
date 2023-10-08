@@ -16,12 +16,8 @@ current_emotion = None
 if "emotion" not in st.session_state: # TODO: Add more session state variables
     st.session_state.emotion = None # Initialise emotion in session state
     st.session_state.emotions = queue.Queue() # Initialise emotions queue in session state
-    st.session_state.audio_player = None # Initialise audio player in session state
-    st.session_state.scanning = False # Initialise scanning flag in session state
-
-# Initialise current_song in session state
-if "current_song" not in st.session_state: # TODO: Add more session state variables
     st.session_state.current_song = None # Initialise current_song in session state
+    st.session_state.scanning = False # Initialise scanning flag in session state
 
 
 # Youtube Functions
@@ -177,9 +173,6 @@ detected.write(f"Detected emotion: `{st.session_state.emotion}`")
 current.write(f"Current emotion: `{str(current_emotion)}`")
 playing.write(f"Playing: `{str(st.session_state.current_song)}`")
 
-# Reserving space for the audio player
-audio = st.empty()
-
 # Age group select, random song button, and scan button
 st.write("Select Age Group")
 col1, col2 = st.columns(2)
@@ -235,39 +228,42 @@ with col6:
        current_emotion = "fear"
    st.image("image/fear.png")
 
+detector = st.empty()
+
 # Scan for emotions
 if st.session_state.scanning:
+    with detector:
 
-    # Initialise the camera
-    with st.spinner("Accessing Camera..."):
-        camera = cv2.VideoCapture(0)
-    while True:
-        ret, frame = camera.read()
-        if ret is not None:
-            break
-
-    # Main loop for the camera feed and emotion detection
-    with st.spinner("Detecting Emotions..."):
-        while st.session_state.scanning:
+        # Initialise the camera
+        with st.spinner("Accessing Camera..."):
+            camera = cv2.VideoCapture(0)
+        while True:
             ret, frame = camera.read()
-            if ret:
-                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) # Convert the frame to RGB
-                st.session_state.emotion = get_emotion(frame)
+            if ret is not None:
+                break
 
-                # If current_emotion is set by button press, skip the auto-detection
-                if not current_emotion:
-                    current_emotion = get_current_emotion()
+        # Main loop for the camera feed and emotion detection
+        with st.spinner("Detecting Emotions..."):
+            while st.session_state.scanning:
+                ret, frame = camera.read()
+                if ret:
+                    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) # Convert the frame to RGB
+                    st.session_state.emotion = get_emotion(frame)
 
-                if current_emotion:
-                    st.session_state.scanning = False
-                    st.session_state.emotions = queue.Queue() # Reset the emotion queue for next scan
+                    # If current_emotion is set by button press, skip the auto-detection
+                    if not current_emotion:
+                        current_emotion = get_current_emotion()
 
-                detected.write(f"Detected emotion: `{st.session_state.emotion}`") # Update the detected emotion
-                current.write(f"Current emotion: `{str(current_emotion)}`")
-                playing.write(f"Playing: `{str(st.session_state.current_song)}`")
+                    if current_emotion:
+                        st.session_state.scanning = False
+                        st.session_state.emotions = queue.Queue() # Reset the emotion queue for next scan
 
-    # Release the camera after scanning is complete
-    camera.release()
+                    detected.write(f"Detected emotion: `{st.session_state.emotion}`") # Update the detected emotion
+                    current.write(f"Current emotion: `{str(current_emotion)}`")
+                    playing.write(f"Playing: `{str(st.session_state.current_song)}`")
+
+        # Release the camera after scanning is complete
+        camera.release()
 
 # Play the song using the current emotion
 if current_emotion:
