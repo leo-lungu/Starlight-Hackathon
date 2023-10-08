@@ -147,6 +147,8 @@ audio = st.markdown(markdown_str+"", unsafe_allow_html=True)
 
 col1, col2 = st.columns(2)
 
+
+
 with col1:
     if st.button("Scan"):
         st.session_state.scanning = True  
@@ -157,6 +159,47 @@ with col2:
     if st.button("❓"):
         current_emotion = random.choice(["happy", "sad", "angry", "surprise", "neutral", "fear"])
 
+with col1:
+    age = st.selectbox(
+        "Select Age Group",
+        ["3-5", "6-10", "10-15", "15-20"],
+        2,
+        disabled=st.session_state.scanning
+    )
+
+
+
+
+
+# put scan button on left and ? button on right
+with col2:
+    st.empty()
+
+col1, col2, col3, col4, col5, col6 = st.columns(6)
+
+# with col1:
+#    if st.image("image/happy.png"):
+#        current_emotion = "happy"
+
+# with col2:
+#    if st.image("image/sad.png"):
+#        current_emotion = "sad"
+       
+# with col3:
+#    if st.image("image/angry.png"):
+#        current_emotion = "angry"
+
+# with col4:
+#    if st.image("image/surprised.png"):
+#        current_emotion = "surprise"  
+
+# with col5:
+#    if st.image("image/netural.png"):
+#        current_emotion = "neutral"
+
+# with col6:
+#    if st.image("image/fear.png"):
+#        current_emotion = "fear"
 
 
 # put scan button on left and ? button on right
@@ -166,27 +209,27 @@ with col2:
 col1, col2, col3, col4, col5, col6 = st.columns(6)
 
 with col1:
-   if st.image("image/happy.png"):
+   if st.button("😀"):
        current_emotion = "happy"
 
 with col2:
-   if st.image("image/sad.png"):
+   if st.button("😢"):
        current_emotion = "sad"
        
 with col3:
-   if st.image("image/angry.png"):
+   if st.button("😠"):
        current_emotion = "angry"
 
 with col4:
-   if st.image("image/surprise.png"):
+   if st.button("😲"):
        current_emotion = "surprise"  
 
 with col5:
-   if st.image("image/neutral.png"):
+   if st.button("😐"):
        current_emotion = "neutral"
 
 with col6:
-   if st.image("image/fear.png"):
+   if st.button("😨"):
        current_emotion = "fear"
 
 
