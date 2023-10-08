@@ -145,12 +145,6 @@ audio = st.markdown(markdown_str+"", unsafe_allow_html=True)
 
 
 
-if st.button("Scan"):
-    st.session_state.scanning = True  
-    detected.write("Detected emotion: `Scanning...`")
-    current.write("Current emotion: `Scanning...`")
-    playing.write("Playing: `None`")
-
 col1, col2 = st.columns(2)
 
 with col1:
@@ -172,27 +166,27 @@ with col2:
 col1, col2, col3, col4, col5, col6 = st.columns(6)
 
 with col1:
-   if st.button("😀"):
+   if st.image("image/happy.png"):
        current_emotion = "happy"
 
 with col2:
-   if st.button("😢"):
+   if st.image("image/sad.png"):
        current_emotion = "sad"
        
 with col3:
-   if st.button("😠"):
+   if st.image("image/angry.png"):
        current_emotion = "angry"
 
 with col4:
-   if st.button("😲"):
+   if st.image("image/surprise.png"):
        current_emotion = "surprise"  
 
 with col5:
-   if st.button("😐"):
+   if st.image("image/neutral.png"):
        current_emotion = "neutral"
 
 with col6:
-   if st.button("😨"):
+   if st.image("image/fear.png"):
        current_emotion = "fear"
 
 
