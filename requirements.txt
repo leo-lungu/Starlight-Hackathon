@@ -1,8 +1,7 @@
 deepface==0.0.79
+google_api_python_client==2.102.0
 opencv_python==4.8.1.78
 pygame==2.5.0
+python-dotenv==1.0.0
+pytube==15.0.0
 streamlit==1.27.0
-google-auth
-google-auth-oauthlib
-google-api-python-client
-python-dotenv
