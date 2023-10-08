@@ -83,13 +83,58 @@ def get_current_emotion(): # TODO: Add more emotion detection models
             return emotion # Return the emotion
     return None
 
+
+# convert and cache image
+@st.cache_data()
+def get_markdown_with_background():
+    with open('./image/background.jpg', 'rb') as f:
+        data = f.read()
+    bin_str = base64.b64encode(data).decode()
+    
+    # Some styling for the button toggle button
+    background_str = ('''
+<style>
+    .stApp {
+    background-image: url("data:image/png;base64,%s");
+    background-size: cover;
+    }
+
+    div.stButton > button:first-child {
+    background-color: #0099ff;
+    color:#ffffff;
+    border-color: #0099ff;
+    }
+    div.stButton> button:hover, div.stButton> button:focus, div.stButton> button:focus:not(:active):hover {
+    background-color: #2FEF10;
+    color:#ffffff;
+    border-color: #2FEF10
+    }
+     
+    div.stButton> button:active,  div.stButton> button:focus:not(:active) {
+    background-color: #0099ff;
+    color:#ffffff;
+    border-color: #0099ff
+    }
+</style>
+
+''' % bin_str)
+    return background_str
+
+
 # UI elements
+# Moving the Header to center 
+st.text("")
+st.text("")
+st.text("")
+st.text("")
+st.text("")
 st.header("Face Tracking")
+markdown_str = get_markdown_with_background()
 col1, col2, col3 = st.columns(3)
 detected = col1.empty()
 current = col2.empty()
 playing = col3.empty()
-audio = st.empty() # Use empty() for dynamic content
+audio = st.markdown(markdown_str+"", unsafe_allow_html=True)
 
 # Functions to set the background image from the image folder
 @st.cache_data
@@ -170,7 +215,7 @@ if st.session_state.scanning:
                             audio_path = download_youtube_audio(random_song_url)
                             audio_data = open(audio_path, "rb").read()
                             encoded_song = base64.b64encode(audio_data).decode("utf-8")
-                            audio.markdown(f"<audio style='width: 100%;' src='data:audio/webm;base64,{encoded_song}' autoplay controls></audio>", unsafe_allow_html=True)
+                            audio.markdown(markdown_str+f"<audio style='width: 100%;' src='data:audio/webm;base64,{encoded_song}' autoplay controls></audio>", unsafe_allow_html=True)
                             st.session_state.current_song = YouTube(random_song_url).title
 
                         st.session_state.scanning = False
@@ -182,7 +227,7 @@ if st.session_state.scanning:
                         song_data = load_random_song(f"music/{current_emotion}", age)
                         if song_data: # If song_data is not None, proceed
                             encoded_song = base64.b64encode(song_data).decode("utf-8")
-                            audio.markdown(f"<audio style='width: 100%;' src='data:audio/mp3;base64,{encoded_song}' autoplay controls></audio>", unsafe_allow_html=True) # Play the song
+                            audio.markdown(markdown_str+f"<audio style='width: 100%;' src='data:audio/mp3;base64,{encoded_song}' autoplay controls></audio>", unsafe_allow_html=True) # Play the song
 
                         st.session_state.scanning = False
 
