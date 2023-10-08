@@ -49,7 +49,7 @@ YOUTUBE_API_KEY="YOUR_API_KEY"
 Run the Streamlit app:
 
 ```
-streamlit run app.py
+streamlit run "PATH"/starlight/Starlight-Hackathon/app.py
 ```
 
 Open your web browser and go to `http://localhost:8501/`.
