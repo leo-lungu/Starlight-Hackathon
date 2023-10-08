@@ -5,28 +5,42 @@ import queue
 import base64
 import os
 import random
-
+from pytube import YouTube
+import tempfile
 
 from youtubeAPIHandler import youtube_search
 
 
 
 
+def download_youtube_audio(url):
+    yt = YouTube(url)
+    audio_stream = yt.streams.filter(only_audio=True).first()
+    temp_folder = tempfile.mkdtemp()
+    audio_path = f"{temp_folder}/{yt.title}.webm"
+    audio_stream.download(filename=audio_path)
+    return audio_path
 
-
-# Load happy and sad mp3 files
-
-happy = open("music/happy/happy.mp3", "rb").read()
-sad = open("music/sad/sad.mp3", "rb").read()
-
+def extract_urls(playlist):
+    urls = []
+    for line in playlist:
+        url_start = line.rfind("https://")
+        if url_start != -1:
+            url = line[url_start:]
+            urls.append(url)
+    return urls
 
 # Function to load a random mp3 file from a given folder
-def load_random_song(folder):
-    files = [f for f in os.listdir(folder) if f.endswith('.mp3')]
+def load_random_song(folder, age_group):
+    subfolder = "kids" if age_group in ['3-5', '6-10'] else "teens"
+    folder_path = os.path.join(folder, subfolder)
+    files = [f for f in os.listdir(folder_path) if f.endswith('.mp3')]
+    
     if not files:
         return None
+    
     random_file = random.choice(files)
-    return open(os.path.join(folder, random_file), "rb").read()
+    return open(os.path.join(folder_path, random_file), "rb").read()
 
 # Query YouTube and generate a playlist
 def generate_playlist(emotion, age):
@@ -41,8 +55,7 @@ if "emotion" not in st.session_state:
     st.session_state.emotions = queue.Queue()
     st.session_state.playing = None
     st.session_state.audio_player = None
-    st.session_state.scanning = True  # Add a scanning flag
-    st.session_state.show_camera = False  # Add a flag to toggle camera visibility
+    st.session_state.scanning = False  # Add a scanning flag
 
 # Import DeepFace for emotion recognition
 with st.spinner("Importing DeepFace..."):
@@ -77,18 +90,19 @@ col1, col2, col3 = st.columns(3)
 detected = col1.empty()
 current = col2.empty()
 playing = col3.empty()
-audio = st.markdown("", unsafe_allow_html=True)
+audio = st.empty()  # Use empty() for dynamic content
+
+# "Scan Again" button to restart scanning
+if st.button("Scan"):
+    st.session_state.scanning = True  # Set the scanning flag to True to start scanning again
+
+# Adding the dropdown for age selection
+with col1:
+    age = st.selectbox('Select Age Group', ['3-5', '6-10', '10-15', '15-20'])
 
 
-# Add button to toggle camera visibility
-if st.button("Toggle Camera"):
-    st.session_state.show_camera = not st.session_state.show_camera
 
-# Only create the image placeholder if the camera is enabled
-if st.session_state.show_camera:
-    FRAME_WINDOW = st.image([])  # Initialize image placeholder
-else:
-    FRAME_WINDOW = None  # Set to None to skip updating the frame
+
 
 # Start the camera
 with st.spinner("Accessing Camera..."):
@@ -99,55 +113,58 @@ with st.spinner("Starting Camera..."):
         if ret is not None:
             break
 
+
 #Main loop for the camera feed
 while st.session_state.scanning:  # Continue scanning while the flag is True
     ret, frame = camera.read()
     if ret:
-        # Convert the frame color to RGB
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-        # Only update the frame if the camera is enabled
-        if st.session_state.show_camera and FRAME_WINDOW is not None:
-            FRAME_WINDOW.image(frame, use_column_width=True)
-
-        # Update session state with detected emotion
         st.session_state.emotion = get_emotion(frame)
         current_emotion = get_current_emotion()
 
-        # Update current emotion if it's changed and is not None
         if current_emotion and (current_emotion != st.session_state.playing):
             st.session_state.playing = current_emotion
-            
-            # Load random song based on current emotion 
-            song_data = load_random_song(f"music/{current_emotion}")
-            if song_data:
-                encoded_song = base64.b64encode(song_data).decode('utf-8')
-                audio.markdown(f'<audio style="width: 100%;" src="data:audio/mp3;base64,{encoded_song}" autoplay controls></audio>', unsafe_allow_html=True)
+
+            try:
+                playlist_text = generate_playlist(current_emotion, age=age)
+                urls = extract_urls(playlist_text)
+                random_song_url = random.choice(urls)
+                
+                if random_song_url:
+                    audio_path = download_youtube_audio(random_song_url)
+                    audio_data = open(audio_path, "rb").read()
+                    st.audio(audio_data, format="audio/webm")
+                
+                st.session_state.scanning = False
+                
+            except Exception as e:
+                st.write(f"Can't reach The internet, Offline songs Active.")
+                
+                # Pass the age group to the function
+                song_data = load_random_song(f"music/{current_emotion}", age)
+                if song_data:
+                    encoded_song = base64.b64encode(song_data).decode('utf-8')
+                    audio.markdown(f'<audio style="width: 100%;" src="data:audio/mp3;base64,{encoded_song}" autoplay controls></audio>', unsafe_allow_html=True)
+    
+                st.session_state.scanning = False
+                
+               
 
         detected.write(f"Detected emotion: `{st.session_state.emotion}`")
         current.write(f"Current emotion: `{str(current_emotion)}`")
         playing.write(f"Playing: `{str(st.session_state.playing)}`")
 
 
+    
+
+
 
 # Release the camera when scanning is finished
 camera.release()
-# "Scan Again" button to restart scanning
-if st.button("Scan Again"):
-    st.session_state.scanning = True  # Set the scanning flag to True to start scanning again
 
 
 
 
-# Incorporate following code:
-# Determine current mood
-emotion = "happy"
-age = 21
 
-# Generate and display playlist
-playlist = generate_playlist(emotion, age)
-
-st.write("Generated Playlist:")
-for song in playlist:
-    st.write(song)
 
