@@ -31,9 +31,9 @@ def extract_urls(playlist):
 
 # Function to load a random song file from a folder based on age group
 def load_random_song(folder, age_group):
-    subfolder = "kids" if age_group in ['3-5', '6-10'] else "teens"
+    subfolder = "kids" if age_group in ["3-5", "6-10"] else "teens"
     folder_path = os.path.join(folder, subfolder)
-    files = [f for f in os.listdir(folder_path) if f.endswith('.mp3')]
+    files = [f for f in os.listdir(folder_path) if f.endswith(".mp3")]
     if not files:
         return None
     random_file = random.choice(files)
@@ -51,7 +51,6 @@ def generate_playlist(emotion, age):
 if "emotion" not in st.session_state:
     st.session_state.emotion = None
     st.session_state.emotions = queue.Queue()
-    st.session_state.playing = None
     st.session_state.audio_player = None
     st.session_state.scanning = False
 
@@ -90,40 +89,41 @@ col1, col2, col3 = st.columns(3)
 detected = col1.empty()
 current = col2.empty()
 playing = col3.empty()
-audio = st.empty()  # Use empty() for dynamic content
+audio = st.empty() # Use empty() for dynamic content
 
-#set background images with background taken from image folder
+# Functions to set the background image from the image folder
 @st.cache_data
 def get_base64_of_bin_file(bin_file):
-    with open(bin_file, 'rb') as f:
+    with open(bin_file, "rb") as f:
         data = f.read()
     return base64.b64encode(data).decode()
 
 def set_png_as_page_bg(png_file):
     bin_str = get_base64_of_bin_file(png_file)
-    page_bg_img = '''
+    page_bg_img = """
     <style>
     body {
     background-image: url("data:image/png;base64,%s");
     background-size: cover;
     }
     </style>
-    ''' % bin_str
-    
+    """ % bin_str
+
     st.markdown(page_bg_img, unsafe_allow_html=True)
     return
 
-set_png_as_page_bg('image/background.png')
+# Set the background image, TODO: Add a background image
+# set_png_as_page_bg("image/background.png")
 
 # Initialize these fields once to prevent them from disappearing
-detected.write("Detected emotion: `None`")
-current.write("Current emotion: `None`")
-playing.write("Playing: `None`")
+if not st.session_state.scanning:
+    detected.write("Detected emotion: `None`")
+    current.write("Current emotion: `None`")
+    playing.write("Playing: `None`")
 
 # "Scan Again" button to restart scanning
 if st.button("Scan"):
     st.session_state.scanning = True  # Set the scanning flag to True to start scanning again
-    st.session_state.playing = None  # Reset the playing state to None
 
     # Reset these fields when scanning starts
     detected.write("Detected emotion: `Scanning...`")
@@ -132,61 +132,58 @@ if st.button("Scan"):
 
 # Dropdown for age selection
 with col1:
-    age = st.selectbox('Select Age Group', ['3-5', '6-10', '10-15', '15-20'])
+    age = st.selectbox("Select Age Group", ["3-5", "6-10", "10-15", "15-20"])
 
-# Initialize the camera
-with st.spinner("Accessing Camera..."):
-    camera = cv2.VideoCapture(0)
-while True:
-    ret, frame = camera.read()
-    if ret is not None:
-        break
+if st.session_state.scanning:
 
-# Main loop for the camera feed and emotion detection
-while st.session_state.scanning:
-    ret, frame = camera.read()
-    if ret:
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        st.session_state.emotion = get_emotion(frame)
-        current_emotion = get_current_emotion()
-        
-        if current_emotion and (current_emotion != st.session_state.playing):
-            st.session_state.playing = current_emotion
-            
-            # Code for handling online and offline music
-            try:
-                playlist_text = generate_playlist(current_emotion, age=age)
-                urls = extract_urls(playlist_text)
-                random_song_url = random.choice(urls)
+    # Initialize the camera
+    with st.spinner("Accessing Camera..."):
+        camera = cv2.VideoCapture(0)
+    while True:
+        ret, frame = camera.read()
+        if ret is not None:
+            break
 
-                if random_song_url:
-                    audio_path = download_youtube_audio(random_song_url)
-                    audio_data = open(audio_path, "rb").read()
-                    encoded_song = base64.b64encode(audio_data).decode('utf-8')
-                    audio.markdown(f'<audio style="width: 100%;" src="data:audio/webm;base64,{encoded_song}" autoplay controls></audio>', unsafe_allow_html=True)
-                    st.session_state.current_song = YouTube(random_song_url).title
+    # Main loop for the camera feed and emotion detection
+    with st.spinner("Detecting Emotions..."):
+        while st.session_state.scanning:
+            ret, frame = camera.read()
+            if ret:
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                st.session_state.emotion = get_emotion(frame)
+                current_emotion = get_current_emotion()
 
-                st.session_state.scanning = False
-                st.session_state.playing = None  # Set playing to None until a new song is chosen
+                if current_emotion:
 
-            except Exception as e:
-                st.write(f"An error occurred: {e}. Playing local files.")
-                
-                # Pass the age group to the function
-                song_data = load_random_song(f"music/{current_emotion}", age)
-                if song_data:
-                    encoded_song = base64.b64encode(song_data).decode('utf-8')
-                    audio.markdown(f'<audio style="width: 100%;" src="data:audio/mp3;base64,{encoded_song}" autoplay controls></audio>', unsafe_allow_html=True)
+                    # Code for handling online and offline music
+                    try:
+                        playlist_text = generate_playlist(current_emotion, age=age)
+                        urls = extract_urls(playlist_text)
+                        random_song_url = random.choice(urls)
 
-                st.session_state.scanning = False
-                st.session_state.playing = None  # Set playing to None until a new song
+                        if random_song_url:
+                            audio_path = download_youtube_audio(random_song_url)
+                            audio_data = open(audio_path, "rb").read()
+                            encoded_song = base64.b64encode(audio_data).decode("utf-8")
+                            audio.markdown(f"<audio style='width: 100%;' src='data:audio/webm;base64,{encoded_song}' autoplay controls></audio>", unsafe_allow_html=True)
+                            st.session_state.current_song = YouTube(random_song_url).title
 
-        detected.write(f"Detected emotion: `{st.session_state.emotion}`")
-        current.write(f"Current emotion: `{str(current_emotion)}`")
-        playing.write(f"Playing: `{str(st.session_state.current_song)}`")
+                        st.session_state.scanning = False
 
-# Release the camera after scanning is complete
-camera.release()
-    
+                    except Exception as e:
+                        st.write(f"An error occurred: {e}. Playing local files.")
 
+                        # Pass the age group to the function
+                        song_data = load_random_song(f"music/{current_emotion}", age)
+                        if song_data:
+                            encoded_song = base64.b64encode(song_data).decode("utf-8")
+                            audio.markdown(f"<audio style='width: 100%;' src='data:audio/mp3;base64,{encoded_song}' autoplay controls></audio>", unsafe_allow_html=True)
 
+                        st.session_state.scanning = False
+
+                detected.write(f"Detected emotion: `{st.session_state.emotion}`")
+                current.write(f"Current emotion: `{str(current_emotion)}`")
+                playing.write(f"Playing: `{str(st.session_state.current_song)}`")
+
+    # Release the camera after scanning is complete
+    camera.release()
