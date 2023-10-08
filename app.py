@@ -178,6 +178,9 @@ with col1:
         current_emotion = "neutral"
     if st.button("😨"):
         current_emotion = "fear"
+    if st.button("❓ - I'm feeling lucky!"):
+        #randomise the emotion
+        current_emotion = random.choice(["happy", "sad", "angry", "surprise", "neutral", "fear"])
 
 
 
