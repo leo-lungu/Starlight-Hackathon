@@ -106,40 +106,48 @@ def background_md():
         <style>
             header {visibility: hidden;}
             footer {visibility: hidden;}
-            .block-container {padding-bottom: 20px;}
+            .block-container {
+                padding-top: 130px;
+                padding-bottom: 20px;
+                margin-bottom: 0px;
+            }
             .stApp {
-            background-image: url("data:image/png;base64,%s");
-            background-size: cover;
+                background-image: url("data:image/png;base64,%s");
+                background-size: cover;
             }
-
             div.stButton > button:first-child {
-            background-color: #0099ff;
-            color:#ffffff;
-            border-color: #0099ff;
+                background-color: #0099ff;
+                color:#ffffff;
+                border-color: #0099ff;
             }
-            div.stButton> button:hover, div.stButton> button:focus, div.stButton> button:focus:not(:active):hover {
-            background-color: #2FEF10;
-            color:#ffffff;
-            border-color: #2FEF10
+            div.stButton> button:hover,
+            div.stButton> button:focus,
+            div.stButton> button:focus:not(:active):hover {
+                background-color: #2FEF10;
+                color:#ffffff;
+                border-color: #2FEF10
             }
-
-            div.stButton> button:active,  div.stButton> button:focus:not(:active) {
-            background-color: #0099ff;
-            color:#ffffff;
-            border-color: #0099ff
+            div.stButton> button:active,
+            div.stButton> button:focus:not(:active) {
+                background-color: #0099ff;
+                color:#ffffff;
+                border-color: #0099ff
             }
         </style>
     """ % bin_str)
 
+# Set page config
+st.set_page_config(
+    page_title="Starlight",
+    page_icon="📷"
+)
+
 # Display the background image
 st.markdown(background_md(), unsafe_allow_html=True)
-
-st.text("")
 
 # Import DeepFace for emotion recognition
 with st.spinner("Importing DeepFace..."):
     from deepface import DeepFace # Import DeepFace
-
 
 # UI elements
 
@@ -169,24 +177,23 @@ audio = st.empty()
 # Age group select, random song button, and scan button
 st.write("Select Age Group")
 col1, col2 = st.columns(2)
+subcol1, subcol2 = col2.columns([0.15, 0.85])
 
-if st.button("Scan"):
+if subcol2.button("Scan"):
     st.session_state.scanning = True
     detected.write("Detected emotion: `Scanning...`")
     current.write("Current emotion: `Scanning...`")
     playing.write("Playing: `None`")
 
-with col1:
-    age = st.selectbox(
-        "Select Age Group",
-        ["3-5", "6-10", "10-15", "15-20"],
-        2,
-        label_visibility="collapsed"
-    )
+age = col1.selectbox(
+    "Select Age Group",
+    ["3-5", "6-10", "10-15", "15-20"],
+    2,
+    label_visibility="collapsed"
+)
 
-with col2:
-    if st.button("❓"):
-        current_emotion = random.choice(["happy", "sad", "angry", "surprise", "neutral", "fear"])
+if subcol1.button("❓", use_container_width=True):
+    current_emotion = random.choice(["happy", "sad", "angry", "surprise", "neutral", "fear"])
 
 
 # Emotion buttons
