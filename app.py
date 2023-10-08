@@ -151,23 +151,18 @@ if st.button("Scan"):
     current.write("Current emotion: `Scanning...`")
     playing.write("Playing: `None`")
 
-col1, col2 = st.columns([4,1])
+col1, col2 = st.columns(2)
 
+with col1:
+    if st.button("Scan"):
+        st.session_state.scanning = True  
+        detected.write("Detected emotion: `Scanning...`")
+        current.write("Current emotion: `Scanning...`")
+        playing.write("Playing: `None`")
+with col2:
+    if st.button("❓"):
+        current_emotion = random.choice(["happy", "sad", "angry", "surprise", "neutral", "fear"])
 
-# with col1:
-#     st.empty()
-# with col2:
-#     if st.button("❓"):
-#         current_emotion = random.choice(["happy", "sad", "angry", "surprise", "neutral", "fear"])
-
-# # Dropdown for age selection
-# with col1:
-#     age = st.selectbox(
-#         "Select Age Group",
-#         ["3-5", "6-10", "10-15", "15-20"],
-#         2,
-#         disabled=st.session_state.scanning
-#     )
 
 
 # put scan button on left and ? button on right
