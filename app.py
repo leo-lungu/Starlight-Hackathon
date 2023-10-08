@@ -7,7 +7,6 @@ import os
 import random
 from pytube import YouTube
 import tempfile
-
 from youtubeAPIHandler import youtube_search
 
 current_emotion = None
@@ -52,7 +51,6 @@ def generate_playlist(emotion, age):
     query = f"{emotion} songs for  {age}"
     playlist = youtube_search(query, max_results=20)
     return playlist
-
 
 # Initialise Streamlit session state if not already initialised
 if "emotion" not in st.session_state: # TODO: Add more session state variables
@@ -195,7 +193,6 @@ age = col1.selectbox(
 if subcol1.button("❓", use_container_width=True):
     current_emotion = random.choice(["happy", "sad", "angry", "surprise", "neutral", "fear"])
 
-
 # Emotion buttons
 st.write("Or select an emotion to play a song")
 col1, col2, col3, col4, col5, col6 = st.columns(6)
@@ -231,7 +228,6 @@ with col6:
        current_emotion = "fear"
    st.image("image/fear.png")
 
-
 # Scan for emotions
 if st.session_state.scanning:
 
@@ -265,7 +261,6 @@ if st.session_state.scanning:
 
     # Release the camera after scanning is complete
     camera.release()
-
 
 # Play the song using the current emotion
 if current_emotion:
