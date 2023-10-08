@@ -7,12 +7,15 @@ import os
 import random
 
 # Function to load a random mp3 file from a given folder
+
+
 def load_random_song(folder):
     files = [f for f in os.listdir(folder) if f.endswith('.mp3')]
     if not files:
         return None
     random_file = random.choice(files)
     return open(os.path.join(folder, random_file), "rb").read()
+
 
 # Initialize session state if not already done
 if "emotion" not in st.session_state:
@@ -27,8 +30,11 @@ with st.spinner("Importing DeepFace..."):
     from deepface import DeepFace
 
 # Function to get the emotion from a given frame
+
+
 def get_emotion(frame):
-    result = DeepFace.analyze(frame, actions=["emotion"], enforce_detection=False, silent=True)
+    result = DeepFace.analyze(
+        frame, actions=["emotion"], enforce_detection=False, silent=True)
     if isinstance(result, list) and len(result) > 0:
         emotion = result[0].get("dominant_emotion", None)
         if emotion:
@@ -40,6 +46,8 @@ def get_emotion(frame):
     return None
 
 # Function to get the current dominant emotion
+
+
 def get_current_emotion():
     emotions = list(st.session_state.emotions.queue)
     if emotions:
@@ -49,13 +57,50 @@ def get_current_emotion():
             return emotion
     return None
 
+
+# convert and cache image
+@st.cache_data()
+def get_markdown_with_background():
+    with open('./image/background.jpg', 'rb') as f:
+        data = f.read()
+    bin_str = base64.b64encode(data).decode()
+    background_str = ('''
+<style>
+    .stApp {
+    background-image: url("data:image/png;base64,%s");
+    background-size: cover;
+    }
+
+    div.stButton > button:first-child {
+    background-color: #0099ff;
+    color:#ffffff;
+    border-color: #0099ff;
+    }
+    div.stButton> button:hover, div.stButton> button:focus, div.stButton> button:focus:not(:active):hover {
+    background-color: #2FEF10;
+    color:#ffffff;
+    border-color: #2FEF10
+    }
+     
+    div.stButton> button:active,  div.stButton> button:focus:not(:active) {
+    background-color: #0099ff;
+    color:#ffffff;
+    border-color: #0099ff
+    }
+</style>
+
+''' % bin_str)
+    return background_str
+
+
 # UI elements
 st.header("Face Tracking")
+markdown_str = get_markdown_with_background()
 col1, col2, col3 = st.columns(3)
 detected = col1.empty()
 current = col2.empty()
 playing = col3.empty()
-audio = st.markdown("", unsafe_allow_html=True)
+audio = st.markdown(markdown_str+"", unsafe_allow_html=True)
 
 
 # Add button to toggle camera visibility
@@ -95,12 +140,15 @@ while True:
         # Update current emotion if it's changed and is not None
         if current_emotion and (current_emotion != st.session_state.playing):
             st.session_state.playing = current_emotion
-            
-            # Load random song based on current emotion 
+
+            # Load random song based on current emotion
             song_data = load_random_song(f"music/{current_emotion}")
             if song_data:
                 encoded_song = base64.b64encode(song_data).decode('utf-8')
-                audio.markdown(f'<audio style="width: 100%;" src="data:audio/mp3;base64,{encoded_song}" autoplay controls></audio>', unsafe_allow_html=True)
+                audio.markdown(
+                    markdown_str+f'''<audio style="width: 100%;"
+                    src="data:audio/mp3;base64,{encoded_song}" autoplay controls></audio>''',
+                    unsafe_allow_html=True)
 
         detected.write(f"Detected emotion: `{st.session_state.emotion}`")
         current.write(f"Current emotion: `{str(current_emotion)}`")
