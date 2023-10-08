@@ -85,6 +85,8 @@ def get_markdown_with_background():
     with open('./image/background.jpg', 'rb') as f:
         data = f.read()
     bin_str = base64.b64encode(data).decode()
+    
+    # Some styling for the button toggle button
     background_str = ('''
 <style>
     .stApp {
@@ -115,6 +117,12 @@ def get_markdown_with_background():
 
 
 # UI elements
+# Moving the Header to center 
+st.text("")
+st.text("")
+st.text("")
+st.text("")
+st.text("")
 st.header("Face Tracking")
 markdown_str = get_markdown_with_background()
 col1, col2, col3 = st.columns(3)
