@@ -144,7 +144,7 @@ st.set_page_config(
 st.markdown(background_md(), unsafe_allow_html=True)
 
 # Import DeepFace for emotion recognition
-with st.spinner("Importing DeepFace..."):
+with st.spinner("Welcome to Starlight! Loading Emotion Recognition Model... (This may take a while) 🚀"):
     from deepface import DeepFace # Import DeepFace
 
 # UI elements
