@@ -145,14 +145,19 @@ audio = st.markdown(markdown_str+"", unsafe_allow_html=True)
 
 
 
-# "Scan Again" button to restart scanning
 if st.button("Scan"):
-    st.session_state.scanning = True  # Set the scanning flag to True to start scanning again
-
-    # Reset these fields when scanning starts
+    st.session_state.scanning = True  
     detected.write("Detected emotion: `Scanning...`")
     current.write("Current emotion: `Scanning...`")
     playing.write("Playing: `None`")
+
+col1, col2 = st.columns([4,1])
+
+with col1:
+    st.empty()
+with col2:
+    if st.button("❓"):
+        current_emotion = random.choice(["happy", "sad", "angry", "surprise", "neutral", "fear"])
 
 # Dropdown for age selection
 with col1:
@@ -178,9 +183,6 @@ with col1:
         current_emotion = "neutral"
     if st.button("😨"):
         current_emotion = "fear"
-    if st.button("❓ - I'm feeling lucky!"):
-        #randomise the emotion
-        current_emotion = random.choice(["happy", "sad", "angry", "surprise", "neutral", "fear"])
 
 
 
