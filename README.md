@@ -27,10 +27,18 @@ cd Starlight-Hackathon
 ```
 
 Install the required packages:
+
 ```bash
 pip install -r requirements.txt
 ```
 
+## Set Up YouTube API Key
+**Create Environment File:** Create a .env file in the root directory of the project.
+
+**Add API Key to .env:** Open .env and add your YouTube API key like so:
+```
+YOUTUBE_API_KEY="YOUR_API_KEY"
+```
 
 ## Usage
 
