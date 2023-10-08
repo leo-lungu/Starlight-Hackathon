@@ -9,7 +9,22 @@ from pytube import YouTube
 import tempfile
 from youtubeAPIHandler import youtube_search
 
+
 current_emotion = None
+
+# Initialise Streamlit session state if not already initialised
+if "emotion" not in st.session_state: # TODO: Add more session state variables
+    st.session_state.emotion = None # Initialise emotion in session state
+    st.session_state.emotions = queue.Queue() # Initialise emotions queue in session state
+    st.session_state.audio_player = None # Initialise audio player in session state
+    st.session_state.scanning = False # Initialise scanning flag in session state
+
+# Initialise current_song in session state
+if "current_song" not in st.session_state: # TODO: Add more session state variables
+    st.session_state.current_song = None # Initialise current_song in session state
+
+
+# Youtube Functions
 
 # Function to download audio from a YouTube URL
 def download_youtube_audio(url):
@@ -52,16 +67,8 @@ def generate_playlist(emotion, age):
     playlist = youtube_search(query, max_results=20)
     return playlist
 
-# Initialise Streamlit session state if not already initialised
-if "emotion" not in st.session_state: # TODO: Add more session state variables
-    st.session_state.emotion = None # Initialise emotion in session state
-    st.session_state.emotions = queue.Queue() # Initialise emotions queue in session state
-    st.session_state.audio_player = None # Initialise audio player in session state
-    st.session_state.scanning = False # Initialise scanning flag in session state
 
-# Initialise current_song in session state
-if "current_song" not in st.session_state: # TODO: Add more session state variables
-    st.session_state.current_song = None # Initialise current_song in session state
+# Emotion Functions
 
 # Function to get emotion from a frame
 def get_emotion(frame): # TODO: Add more emotion detection models
@@ -84,6 +91,10 @@ def get_current_emotion(): # TODO: Add more emotion detection models
             return emotion # Return the emotion
     return None
 
+
+# UI Functions
+
+# Function to add an audio player to the UI
 def play(container, encoded_song):
     container.markdown(f"""
         <audio style='width: 100%;' src='data:audio/mp3;base64,{encoded_song}'
@@ -92,7 +103,7 @@ def play(container, encoded_song):
         unsafe_allow_html=True
     )
 
-# convert and cache image
+# Convert and cache background image
 @st.cache_data()
 def background_md():
     with open("./image/background.jpg", "rb") as f:
@@ -134,6 +145,9 @@ def background_md():
         </style>
     """ % bin_str)
 
+
+# UI elements
+
 # Set page config
 st.set_page_config(
     page_title="Starlight",
@@ -146,12 +160,6 @@ st.markdown(background_md(), unsafe_allow_html=True)
 # Import DeepFace for emotion recognition
 with st.spinner("Welcome to Starlight! Loading Emotion Recognition Model... (This may take a while) 🚀"):
     from deepface import DeepFace # Import DeepFace
-
-# UI elements
-
-# Centering the content
-# for i in range(2):
-#     st.text("")
 
 # Title and description
 st.header("Emotion Based Music Player")
@@ -206,7 +214,6 @@ with col2:
    if st.button("Sad", use_container_width=True):
        current_emotion = "sad"
    st.image("image/sad.png")
-
 
 with col3:
    if st.button("Angry", use_container_width=True):
