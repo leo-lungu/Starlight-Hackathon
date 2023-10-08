@@ -52,29 +52,25 @@ def generate_playlist(emotion, age):
     query = f"{emotion} songs for  {age}"
     playlist = youtube_search(query, max_results=20)
     return playlist
-    
 
-# Initialize Streamlit session state if not already initialized
+
+# Initialise Streamlit session state if not already initialised
 if "emotion" not in st.session_state: # TODO: Add more session state variables
-    st.session_state.emotion = None # Initialize emotion in session state 
-    st.session_state.emotions = queue.Queue() # Initialize emotions queue in session state
-    st.session_state.audio_player = None # Initialize audio player in session state
-    st.session_state.scanning = False # Initialize scanning flag in session state
+    st.session_state.emotion = None # Initialise emotion in session state
+    st.session_state.emotions = queue.Queue() # Initialise emotions queue in session state
+    st.session_state.audio_player = None # Initialise audio player in session state
+    st.session_state.scanning = False # Initialise scanning flag in session state
 
-# Initialize current_song in session state
-if "current_song" not in st.session_state: # TODO: Add more session state variables 
-    st.session_state.current_song = None # Initialize current_song in session state
-
-# Import DeepFace for emotion recognition
-with st.spinner("Importing DeepFace..."): # TODO: Add a loading spinner
-    from deepface import DeepFace # Import DeepFace
+# Initialise current_song in session state
+if "current_song" not in st.session_state: # TODO: Add more session state variables
+    st.session_state.current_song = None # Initialise current_song in session state
 
 # Function to get emotion from a frame
 def get_emotion(frame): # TODO: Add more emotion detection models
     result = DeepFace.analyze(frame, actions=["emotion"], enforce_detection=False, silent=True) # Analyze the frame
     if isinstance(result, list) and len(result) > 0: # If result is a non-empty list, proceed
         emotion = result[0].get("dominant_emotion", None) # Get the dominant emotion
-        if emotion: # If emotion is not None, proceed 
+        if emotion: # If emotion is not None, proceed
             st.session_state.emotions.put(emotion) # Add the emotion to the emotions queue
             if st.session_state.emotions.qsize() > 50: # If the queue size is greater than 50, remove the oldest emotion
                 st.session_state.emotions.get()# Remove the oldest emotion from the queue
@@ -90,200 +86,149 @@ def get_current_emotion(): # TODO: Add more emotion detection models
             return emotion # Return the emotion
     return None
 
+def play(container, encoded_song):
+    container.markdown(f"""
+        <audio style='width: 100%;' src='data:audio/mp3;base64,{encoded_song}'
+            autoplay controls>
+        </audio>""",
+        unsafe_allow_html=True
+    )
 
 # convert and cache image
 @st.cache_data()
-def get_markdown_with_background():
-    with open('./image/background.jpg', 'rb') as f:
+def background_md():
+    with open("./image/background.jpg", "rb") as f:
         data = f.read()
     bin_str = base64.b64encode(data).decode()
-    
+
     # Some styling for the button toggle button
-    background_str = ('''
-<style>
-    .stApp {
-    background-image: url("data:image/png;base64,%s");
-    background-size: cover;
-    }
+    return ("""
+        <style>
+            header {visibility: hidden;}
+            footer {visibility: hidden;}
+            .block-container {padding-bottom: 20px;}
+            .stApp {
+            background-image: url("data:image/png;base64,%s");
+            background-size: cover;
+            }
 
-    div.stButton > button:first-child {
-    background-color: #0099ff;
-    color:#ffffff;
-    border-color: #0099ff;
-    }
-    div.stButton> button:hover, div.stButton> button:focus, div.stButton> button:focus:not(:active):hover {
-    background-color: #2FEF10;
-    color:#ffffff;
-    border-color: #2FEF10
-    }
-     
-    div.stButton> button:active,  div.stButton> button:focus:not(:active) {
-    background-color: #0099ff;
-    color:#ffffff;
-    border-color: #0099ff
-    }
-</style>
+            div.stButton > button:first-child {
+            background-color: #0099ff;
+            color:#ffffff;
+            border-color: #0099ff;
+            }
+            div.stButton> button:hover, div.stButton> button:focus, div.stButton> button:focus:not(:active):hover {
+            background-color: #2FEF10;
+            color:#ffffff;
+            border-color: #2FEF10
+            }
 
-''' % bin_str)
-    return background_str
+            div.stButton> button:active,  div.stButton> button:focus:not(:active) {
+            background-color: #0099ff;
+            color:#ffffff;
+            border-color: #0099ff
+            }
+        </style>
+    """ % bin_str)
+
+# Display the background image
+st.markdown(background_md(), unsafe_allow_html=True)
+
+st.text("")
+
+# Import DeepFace for emotion recognition
+with st.spinner("Importing DeepFace..."):
+    from deepface import DeepFace # Import DeepFace
 
 
 # UI elements
-# Moving the Header to center 
-st.text("")
-st.text("")
-st.text("")
-st.text("")
-st.text("")
-st.header("Face Tracking")
-markdown_str = get_markdown_with_background()
+
+# Centering the content
+# for i in range(2):
+#     st.text("")
+
+# Title and description
+st.header("Emotion Based Music Player")
+st.write("Press the button below to start scanning for emotions and find your song!")
+
+# Debugging for the emotion detection and audio player
 col1, col2, col3 = st.columns(3)
 detected = col1.empty()
 current = col2.empty()
 playing = col3.empty()
-audio = st.markdown(markdown_str+"", unsafe_allow_html=True)
 
+# Initialise these fields once to prevent them from disappearing
+# if not st.session_state.scanning:
+detected.write(f"Detected emotion: `{st.session_state.emotion}`")
+current.write(f"Current emotion: `{str(current_emotion)}`")
+playing.write(f"Playing: `{str(st.session_state.current_song)}`")
 
+# Reserving space for the audio player
+audio = st.empty()
 
+# Age group select, random song button, and scan button
+st.write("Select Age Group")
 col1, col2 = st.columns(2)
 
-
-
-with col1:
-    if st.button("Scan"):
-        st.session_state.scanning = True  
-        detected.write("Detected emotion: `Scanning...`")
-        current.write("Current emotion: `Scanning...`")
-        playing.write("Playing: `None`")
-with col2:
-    if st.button("❓"):
-        current_emotion = random.choice(["happy", "sad", "angry", "surprise", "neutral", "fear"])
+if st.button("Scan"):
+    st.session_state.scanning = True
+    detected.write("Detected emotion: `Scanning...`")
+    current.write("Current emotion: `Scanning...`")
+    playing.write("Playing: `None`")
 
 with col1:
     age = st.selectbox(
         "Select Age Group",
         ["3-5", "6-10", "10-15", "15-20"],
         2,
-        disabled=st.session_state.scanning
+        label_visibility="collapsed"
     )
 
+with col2:
+    if st.button("❓"):
+        current_emotion = random.choice(["happy", "sad", "angry", "surprise", "neutral", "fear"])
 
 
+# Emotion buttons
+st.write("Or select an emotion to play a song")
 col1, col2, col3, col4, col5, col6 = st.columns(6)
 
 with col1:
-   if st.button("Happy"):
+   if st.button("Happy", use_container_width=True):
        current_emotion = "happy"
-
    st.image("image/happy.png")
 
 with col2:
-   if st.button("Sad"):
+   if st.button("Sad", use_container_width=True):
        current_emotion = "sad"
-
    st.image("image/sad.png")
-       
-with col3:
-   if st.button("Angry"):
-       current_emotion = "angry"
 
+
+with col3:
+   if st.button("Angry", use_container_width=True):
+       current_emotion = "angry"
    st.image("image/angry.png")
 
 with col4:
-   if st.button("Surprised"):
-       current_emotion = "surprise" 
-
+   if st.button("Surprised", use_container_width=True):
+       current_emotion = "surprise"
    st.image("image/surprised.png")
 
 with col5:
-   if st.button("Neutral"):
+   if st.button("Neutral", use_container_width=True):
        current_emotion = "neutral"
-
    st.image("image/netural.png")
 
 with col6:
-   if st.button("Fear"):
+   if st.button("Fear", use_container_width=True):
        current_emotion = "fear"
-
    st.image("image/fear.png")
 
 
-# put scan button on left and ? button on right
-with col2:
-    st.empty()
-
-col1, col2, col3, col4, col5, col6 = st.columns(6)
-
-
-
-
-
-
-
-# Functions to set the background image from the image folder
-@st.cache_data
-def get_base64_of_bin_file(bin_file):
-    with open(bin_file, "rb") as f:
-        data = f.read()
-    return base64.b64encode(data).decode()
-
-def set_png_as_page_bg(png_file):
-    bin_str = get_base64_of_bin_file(png_file)
-    page_bg_img = """
-    <style>
-    body {
-    background-image: url("data:image/png;base64,%s");
-    background-size: cover;
-    }
-    </style>
-    """ % bin_str
-
-    st.markdown(page_bg_img, unsafe_allow_html=True)
-    return
-
-# Set the background image, TODO: Add a background image
-# set_png_as_page_bg("image/background.png")
-
-# Initialize these fields once to prevent them from disappearing
-if not st.session_state.scanning:
-    detected.write("Detected emotion: `None`")
-    current.write("Current emotion: `None`")
-    playing.write("Playing: `None`")
-
-
-
-
-# If current_emotion is set by button press then it gets the song 
-if current_emotion:
-
-    # Code for handling online and offline music
-    try:
-        playlist_text = generate_playlist(current_emotion, age=age)
-        urls = extract_urls(playlist_text)  
-        random_song_url = random.choice(urls)
-
-        if random_song_url:
-            audio_path = download_youtube_audio(random_song_url)
-            audio_data = open(audio_path, "rb").read()
-            encoded_song = base64.b64encode(audio_data).decode("utf-8")
-            audio.markdown(f"<audio style='width: 100%;' src='data:audio/webm;base64,{encoded_song}' autoplay controls></audio>", unsafe_allow_html=True)
-            st.session_state.current_song = YouTube(random_song_url).title
-
-        st.session_state.scanning = False
-
-    except Exception as e:
-        st.write(f"An error occurred: {e}. Playing local files.")
-
-        # Pass the age group to the function
-        song_data = load_random_song(f"music/{current_emotion}", age)
-        if song_data:
-            encoded_song = base64.b64encode(song_data).decode("utf-8")
-            audio.markdown(f"<audio style='width: 100%;' src='data:audio/mp3;base64,{encoded_song}' autoplay controls></audio>", unsafe_allow_html=True)
-    
-
+# Scan for emotions
 if st.session_state.scanning:
 
-    # Initialize the camera
+    # Initialise the camera
     with st.spinner("Accessing Camera..."):
         camera = cv2.VideoCapture(0)
     while True:
@@ -298,38 +243,14 @@ if st.session_state.scanning:
             if ret:
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) # Convert the frame to RGB
                 st.session_state.emotion = get_emotion(frame)
-                
+
                 # If current_emotion is set by button press, skip the auto-detection
                 if not current_emotion:
                     current_emotion = get_current_emotion()
 
                 if current_emotion:
-
-                    # Code for handling online and offline music
-                    try:
-                        playlist_text = generate_playlist(current_emotion, age=age) # Query YouTube API
-                        urls = extract_urls(playlist_text)
-                        random_song_url = random.choice(urls)
-
-                        if random_song_url:
-                            audio_path = download_youtube_audio(random_song_url)
-                            audio_data = open(audio_path, "rb").read()
-                            encoded_song = base64.b64encode(audio_data).decode("utf-8")
-                            audio.markdown(markdown_str+f"<audio style='width: 100%;' src='data:audio/webm;base64,{encoded_song}' autoplay controls></audio>", unsafe_allow_html=True)
-                            st.session_state.current_song = YouTube(random_song_url).title
-
-                        st.session_state.scanning = False
-
-                    except Exception as e:
-                        st.write(f"An error occurred: {e}. Playing local files.") # TODO: Add a loading spinner
-
-                        # Pass the age group to the function
-                        song_data = load_random_song(f"music/{current_emotion}", age)
-                        if song_data: # If song_data is not None, proceed
-                            encoded_song = base64.b64encode(song_data).decode("utf-8")
-                            audio.markdown(markdown_str+f"<audio style='width: 100%;' src='data:audio/mp3;base64,{encoded_song}' autoplay controls></audio>", unsafe_allow_html=True) # Play the song
-
-                        st.session_state.scanning = False
+                    st.session_state.scanning = False
+                    st.session_state.emotions = queue.Queue() # Reset the emotion queue for next scan
 
                 detected.write(f"Detected emotion: `{st.session_state.emotion}`") # Update the detected emotion
                 current.write(f"Current emotion: `{str(current_emotion)}`")
@@ -337,3 +258,33 @@ if st.session_state.scanning:
 
     # Release the camera after scanning is complete
     camera.release()
+
+
+# Play the song using the current emotion
+if current_emotion:
+    with st.spinner("Loading Song..."):
+
+        # Code for handling online and offline music
+        try:
+            playlist_text = generate_playlist(current_emotion, age=age)
+            urls = extract_urls(playlist_text)
+            random_song_url = random.choice(urls)
+
+            if random_song_url:
+                audio_path = download_youtube_audio(random_song_url)
+                audio_data = open(audio_path, "rb").read()
+                encoded_song = base64.b64encode(audio_data).decode("utf-8")
+                st.session_state.current_song = YouTube(random_song_url).title
+                play(audio, encoded_song)
+
+        except Exception as e:
+            # st.write(f"An error occurred: {e}. Playing local files.")
+
+            # Pass the age group to the function
+            song_data = load_random_song(f"music/{current_emotion}", age)
+            if song_data:
+                encoded_song = base64.b64encode(song_data).decode("utf-8")
+                st.session_state.current_song = current_emotion
+                play(audio, encoded_song)
+
+        playing.write(f"Playing: `{str(st.session_state.current_song)}`")
