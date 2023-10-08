@@ -3,3 +3,11 @@ __pycache__/
 # Environment file
 .env
 env/
+
+# Python virtual environment
+etc/
+Include/
+Lib/
+Scripts/
+share/
+pyvenv.cfg
