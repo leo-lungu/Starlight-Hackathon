@@ -33,15 +33,15 @@ def extract_urls(playlist):
 
 # Function to load a random song file from a folder based on age group
 def load_random_song(folder, age_group):
-    subfolder = "kids" if age_group in ["3-5", "6-10"] else "teens"
-    folder_path = os.path.join(folder, subfolder)
-    files = [f for f in os.listdir(folder_path) if f.endswith(".mp3")]
-    if not files:
-        return None
-    random_file = random.choice(files)
+    subfolder = "kids" if age_group in ["3-5", "6-10"] else "teens" # TODO: Add more age groups
+    folder_path = os.path.join(folder, subfolder) # Path to the folder
+    files = [f for f in os.listdir(folder_path) if f.endswith(".mp3")] # List of all files in the folder
+    if not files: # If no files are found, return None
+        return None #   TODO: Add a default song
+    random_file = random.choice(files) # Select a random file
     # Update the current_song in the session state
-    st.session_state.current_song = random_file[:-4]
-    return open(os.path.join(folder_path, random_file), "rb").read()
+    st.session_state.current_song = random_file[:-4] # Remove the .mp3 extension
+    return open(os.path.join(folder_path, random_file), "rb").read() # Return the file data
 
 # Function to query YouTube API and generate a playlist
 def generate_playlist(emotion, age):
@@ -52,41 +52,42 @@ def generate_playlist(emotion, age):
     query = f"{emotion} songs for  {age}"
     playlist = youtube_search(query, max_results=20)
     return playlist
+    
 
 # Initialize Streamlit session state if not already initialized
-if "emotion" not in st.session_state:
-    st.session_state.emotion = None
-    st.session_state.emotions = queue.Queue()
-    st.session_state.audio_player = None
-    st.session_state.scanning = False
+if "emotion" not in st.session_state: # TODO: Add more session state variables
+    st.session_state.emotion = None # Initialize emotion in session state 
+    st.session_state.emotions = queue.Queue() # Initialize emotions queue in session state
+    st.session_state.audio_player = None # Initialize audio player in session state
+    st.session_state.scanning = False # Initialize scanning flag in session state
 
 # Initialize current_song in session state
-if "current_song" not in st.session_state:
-    st.session_state.current_song = None
+if "current_song" not in st.session_state: # TODO: Add more session state variables 
+    st.session_state.current_song = None # Initialize current_song in session state
 
 # Import DeepFace for emotion recognition
-with st.spinner("Importing DeepFace..."):
-    from deepface import DeepFace
+with st.spinner("Importing DeepFace..."): # TODO: Add a loading spinner
+    from deepface import DeepFace # Import DeepFace
 
 # Function to get emotion from a frame
-def get_emotion(frame):
-    result = DeepFace.analyze(frame, actions=["emotion"], enforce_detection=False, silent=True)
-    if isinstance(result, list) and len(result) > 0:
-        emotion = result[0].get("dominant_emotion", None)
-        if emotion:
-            st.session_state.emotions.put(emotion)
-            if st.session_state.emotions.qsize() > 50:
-                st.session_state.emotions.get()
+def get_emotion(frame): # TODO: Add more emotion detection models
+    result = DeepFace.analyze(frame, actions=["emotion"], enforce_detection=False, silent=True) # Analyze the frame
+    if isinstance(result, list) and len(result) > 0: # If result is a non-empty list, proceed
+        emotion = result[0].get("dominant_emotion", None) # Get the dominant emotion
+        if emotion: # If emotion is not None, proceed 
+            st.session_state.emotions.put(emotion) # Add the emotion to the emotions queue
+            if st.session_state.emotions.qsize() > 50: # If the queue size is greater than 50, remove the oldest emotion
+                st.session_state.emotions.get()# Remove the oldest emotion from the queue
             return emotion
     return None
 
 # Function to get the current dominant emotion from the session state
-def get_current_emotion():
-    emotions = list(st.session_state.emotions.queue)
-    if emotions:
-        emotion = max(set(emotions), key=emotions.count)
-        if emotions.count(emotion) > 25:
-            return emotion
+def get_current_emotion(): # TODO: Add more emotion detection models
+    emotions = list(st.session_state.emotions.queue) # Get the emotions queue
+    if emotions: #  If the queue is not empty, proceed
+        emotion = max(set(emotions), key=emotions.count) # Get the emotion with the highest count
+        if emotions.count(emotion) > 25: # If the count of the emotion is greater than 25, return the emotion
+            return emotion # Return the emotion
     return None
 
 # UI elements
@@ -214,7 +215,7 @@ if st.session_state.scanning:
         while st.session_state.scanning:
             ret, frame = camera.read()
             if ret:
-                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) # Convert the frame to RGB
                 st.session_state.emotion = get_emotion(frame)
                 
                 # If current_emotion is set by button press, skip the auto-detection
@@ -225,7 +226,7 @@ if st.session_state.scanning:
 
                     # Code for handling online and offline music
                     try:
-                        playlist_text = generate_playlist(current_emotion, age=age)
+                        playlist_text = generate_playlist(current_emotion, age=age) # Query YouTube API
                         urls = extract_urls(playlist_text)
                         random_song_url = random.choice(urls)
 
@@ -239,17 +240,17 @@ if st.session_state.scanning:
                         st.session_state.scanning = False
 
                     except Exception as e:
-                        st.write(f"An error occurred: {e}. Playing local files.")
+                        st.write(f"An error occurred: {e}. Playing local files.") # TODO: Add a loading spinner
 
                         # Pass the age group to the function
                         song_data = load_random_song(f"music/{current_emotion}", age)
-                        if song_data:
+                        if song_data: # If song_data is not None, proceed
                             encoded_song = base64.b64encode(song_data).decode("utf-8")
-                            audio.markdown(f"<audio style='width: 100%;' src='data:audio/mp3;base64,{encoded_song}' autoplay controls></audio>", unsafe_allow_html=True)
+                            audio.markdown(f"<audio style='width: 100%;' src='data:audio/mp3;base64,{encoded_song}' autoplay controls></audio>", unsafe_allow_html=True) # Play the song
 
                         st.session_state.scanning = False
 
-                detected.write(f"Detected emotion: `{st.session_state.emotion}`")
+                detected.write(f"Detected emotion: `{st.session_state.emotion}`") # Update the detected emotion
                 current.write(f"Current emotion: `{str(current_emotion)}`")
                 playing.write(f"Playing: `{str(st.session_state.current_song)}`")
 
